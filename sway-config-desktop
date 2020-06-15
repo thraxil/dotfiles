@@ -122,6 +122,8 @@ output * scale 1
 
     # Move focus to the parent container
     bindsym $mod+a focus parent
+
+    bindsym $mod+Alt_R exec /home/anders/code/sys/dotfiles/screenshot.sh
 #
 # Scratchpad:
 #
