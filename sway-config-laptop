@@ -1,45 +1,30 @@
-# Default config for sway
-#
-# Copy this to ~/.config/sway/config and edit it to your liking.
-#
-# Read `man 5 sway` for a complete reference.
-
-### Variables
-#
 # Logo key. Use Mod1 for Alt.
 set $mod Mod4
+
 # Home row direction keys, like vim
 set $left h
 set $down j
 set $up k
 set $right l
+
 # Your preferred terminal emulator
 set $term kitty
+
 # Your preferred application launcher
-# Note: it's recommended that you pass the final command to sway
 set $menu dmenu_path | dmenu | xargs swaymsg exec --
 
-### Output configuration
-#
 # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
 output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
-# output eDP-1 scale 2
-#
-# Example configuration:
-#
-#   output HDMI-A-1 resolution 1920x1080 position 1920,0
-#
-# You can get the names of your outputs by running: swaymsg -t get_outputs
 
 ### Idle configuration
 #
 # Example configuration:
 #
-# exec swayidle -w \
-#          timeout 300 'swaylock -f -c 000000' \
-#          timeout 600 'swaymsg "output * dpms off"' \
-#               resume 'swaymsg "output * dpms on"' \
-#          before-sleep 'swaylock -f -c 000000'
+exec swayidle -w \
+         timeout 300 'swaylock -f -e -c 000000' \
+         timeout 600 'swaymsg "output * dpms off"' \
+              resume 'swaymsg "output * dpms on"' \
+         before-sleep 'swaylock -f -e -c 000000'
 #
 # This will lock your screen after 300 seconds of inactivity, then turn off
 # your displays after another 300 seconds, and turn your screens back on when
@@ -49,24 +34,6 @@ input "1:1:AT_Translated_Set_2_keyboard" {
     xkb_options ctrl:nocaps
 }
 
-### Input configuration
-#
-# Example configuration:
-#
-#   input "2:14:SynPS/2_Synaptics_TouchPad" {
-#       dwt enabled
-#       tap enabled
-#       natural_scroll enabled
-#       middle_emulation enabled
-#   }
-#
-# You can get the names of your inputs by running: swaymsg -t get_inputs
-# Read `man 5 sway-input` for more information about this section.
-
-### Key bindings
-#
-# Basics:
-#
     # Start a terminal
     bindsym $mod+Shift+Return exec $term
 
@@ -115,30 +82,38 @@ input "1:1:AT_Translated_Set_2_keyboard" {
 #
 # Workspaces:
 #
-    # Switch to workspace
-    bindsym $mod+1 workspace 1
+
+set $workspace1 "1: Browser"
+set $workspace0 "10: Work"
+set $workspace4 "4: PR"
+
+# Switch to workspace
+    bindsym $mod+1 workspace $workspace1
     bindsym $mod+2 workspace 2
     bindsym $mod+3 workspace 3
-    bindsym $mod+4 workspace 4
+    bindsym $mod+4 workspace $workspace4
     bindsym $mod+5 workspace 5
     bindsym $mod+6 workspace 6
     bindsym $mod+7 workspace 7
     bindsym $mod+8 workspace 8
     bindsym $mod+9 workspace 9
-    bindsym $mod+0 workspace 10
+    bindsym $mod+0 workspace $workspace0
     # Move focused container to workspace
-    bindsym $mod+Shift+1 move container to workspace 1
+    bindsym $mod+Shift+1 move container to workspace $workspace1
     bindsym $mod+Shift+2 move container to workspace 2
     bindsym $mod+Shift+3 move container to workspace 3
-    bindsym $mod+Shift+4 move container to workspace 4
+    bindsym $mod+Shift+4 move container to workspace $workspace4
     bindsym $mod+Shift+5 move container to workspace 5
     bindsym $mod+Shift+6 move container to workspace 6
     bindsym $mod+Shift+7 move container to workspace 7
     bindsym $mod+Shift+8 move container to workspace 8
     bindsym $mod+Shift+9 move container to workspace 9
-    bindsym $mod+Shift+0 move container to workspace 10
-    # Note: workspaces can have any name you want, not just numbers.
-    # We just use 1-10 as the default.
+    bindsym $mod+Shift+0 move container to workspace $workspace0
+
+assign [class="Google-chrome"] $workspace1
+assign [instance="google-chrome (prchrome)"] $workspace4
+assign [instance="google-chrome (\/home\/anders\/.appsembler-chrome)"] $workspace0
+
 #
 # Layout stuff:
 #
@@ -177,9 +152,9 @@ input "1:1:AT_Translated_Set_2_keyboard" {
     # If there are multiple scratchpad windows, this command cycles through them.
     bindsym $mod+minus scratchpad show
 
-    bindsym XF86AudioRaiseVolume exec amixer -c 1 set Master 1+ unmute
-    bindsym XF86AudioLowerVolume exec amixer -c 1 set Master 1-
-    bindsym XF86AudioMute exec amixer -c 1 set Master 1- mute
+    bindsym XF86AudioRaiseVolume exec amixer -c 0 set Master 5+ unmute
+    bindsym XF86AudioLowerVolume exec amixer -c 0 set Master 5-
+    bindsym XF86AudioMute exec amixer -c 0 set Master 5- mute
     bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
     bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
     bindsym XF86MonBrightnessUp exec brightnessctl set +5%
@@ -208,6 +183,9 @@ mode "resize" {
 }
 bindsym $mod+r mode "resize"
 
+bindsym --release Print exec /home/anders/.config/sway/screenshot.sh
+bindsym $mod+Shift+x exec swaylock -f -e -c 000000
+
 #
 # Status Bar:
 #
@@ -215,10 +193,7 @@ bindsym $mod+r mode "resize"
 bar {
     position top
 
-    # When the status_command prints a new line to stdout, swaybar updates.
-    # The default just shows the current date and time.
-    status_command while /home/anders/.config/sway/status_cmd.sh; do sleep 1; done
-
+    status_command i3status
     colors {
         statusline #ffffff
         background #323232
@@ -227,3 +202,6 @@ bar {
 }
 
 include /etc/sway/config.d/*
+
+# temporary workaround for scaling bug
+exec_always swaymsg "output * scale 1"

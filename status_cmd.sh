@@ -2,7 +2,8 @@
 
 date=$(date +'%Y-%m-%d %H:%M:%S')
 
-IFACE=wlp2s0
+# IFACE=wlp2s0
+IFACE=wlp0s20f3
 
 iwconfig $IFACE 2>&1 | grep -q no\ wireless\ extension && {
     echo wired $date
